@@ -1,0 +1,11 @@
+* text=auto
+
+*.sh	eol=lf
+
+*.js	text
+*.json	text
+*.ejs	text
+
+*.jpg	-text
+*.png	-text
+
