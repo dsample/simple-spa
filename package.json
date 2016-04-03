@@ -1,0 +1,33 @@
+{
+  "name": "simple-spa",
+  "version": "1.0.0",
+  "description": "A simple pre-compiled single page app",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/karma/bin/karma start"
+  },
+  "repository": {
+    "private": true,
+    "type": "git",
+    "url": "git://github.com/dsample/simple-spa.git"
+  },
+  "author": "Duncan Sample <code@antimatters.co.uk>",
+  "license": "Apache License 2.0",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-jshint": "^2.0.0",
+    "gulp-sass": "^2.2.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.3",
+    "jasmine-core": "^2.4.1",
+    "jshint": "^2.9.1",
+    "jshint-stylish": "^2.1.0",
+    "karma": "^0.13.22",
+    "karma-jasmine": "^0.3.8",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "phantomjs": "^2.1.3",
+    "phantomjs-prebuilt": "^2.1.7",
+    "sass-lint": "^1.5.1"
+  }
+}
