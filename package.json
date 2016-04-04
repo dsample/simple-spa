@@ -12,7 +12,7 @@
     "url": "git://github.com/dsample/simple-spa.git"
   },
   "author": "Duncan Sample <code@antimatters.co.uk>",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
