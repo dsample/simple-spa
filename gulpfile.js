@@ -8,9 +8,20 @@ var sourcemaps = require('gulp-sourcemaps');
 var karma = require('karma');
 var jshint = require('gulp-jshint');
 var jshintStylish = require('jshint-stylish');
+var ejs = require('gulp-ejs');
+var rename = require('gulp-rename');
+
+var config = require('./config.json');
 
 var sassFilesGlob = 'src/sass/**/*.scss';
 var jsFilesGlob = 'src/js/**/*.js';
+
+var htmlAssets = [
+  {
+    src: "src/html/index.html.ejs",
+    dest: "index.html"
+  }
+];
 
 gulp.task('default', ['compile', 'test']);
 gulp.task('compile', ['html', 'js', 'css']);
@@ -32,12 +43,26 @@ gulp.task('test', ['js'], function(done) {
   }, done).start();
 });
 
-gulp.task('html', function() {
-  console.log('html');
+var htmlTasks = [];
+htmlAssets.forEach(function(asset) {
+  var taskName = "html:" + asset.dest;
+
+  gulp.task(taskName, function() {
+    return gulp.src(asset.src)
+      .pipe(ejs({
+        config: config
+      }))
+      .pipe(rename(asset.dest))
+      .pipe(gulp.dest('./package'));
+  });
+
+  htmlTasks.push(taskName);
 });
 
+gulp.task('html', htmlTasks);
+
 gulp.task('js', ['js:lint'], function() {
-  gulp.src(jsFilesGlob)
+  return gulp.src(jsFilesGlob)
     .pipe(sourcemaps.init())
     .pipe(concat('app.js'))
     .pipe(uglify())
