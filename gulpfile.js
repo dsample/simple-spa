@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var sass = require('gulp-sass');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
@@ -12,28 +13,27 @@ var ejs = require('gulp-ejs');
 var rename = require('gulp-rename');
 
 var config = require('./config.json');
+var assetConfig = config['assets'];
 
-var sassFilesGlob = 'src/sass/**/*.scss';
-var jsFilesGlob = 'src/js/**/*.js';
-
-var htmlAssets = [
-  {
-    src: "src/html/index.html.ejs",
-    dest: "index.html"
-  }
-];
+var html = assetConfig['html'];
+var js = assetConfig['js'];
+var css = assetConfig['css'];
 
 gulp.task('default', ['compile', 'test']);
 gulp.task('compile', ['html', 'js', 'css']);
 
-gulp.task('watch', ['watch:js', 'watch:css']); 
+gulp.task('watch', ['watch:js', 'watch:css', 'watch:html']);
 
 gulp.task('watch:js', function() {
-  gulp.watch(jsFilesGlob, ['test']);
+  gulp.watch(js['src']['glob'], ['js','test']);
 });
 
 gulp.task('watch:css', function() {
-  gulp.watch(sassFilesGlob, ['css']);
+  gulp.watch(css['src']['glob'], ['css']);
+});
+
+gulp.task('watch:html', function() {
+  gulp.watch(html['src']['glob'], ['html']);
 });
 
 gulp.task('test', ['js'], function(done) {
@@ -43,47 +43,73 @@ gulp.task('test', ['js'], function(done) {
   }, done).start();
 });
 
-var htmlTasks = [];
-htmlAssets.forEach(function(asset) {
-  var taskName = "html:" + asset.dest;
+function generateHtmlTask(asset) {
+  var taskName = "html:" + asset['dest'];
 
   gulp.task(taskName, function() {
-    return gulp.src(asset.src)
-      .pipe(ejs({
-        config: config
-      }))
-      .pipe(rename(asset.dest))
+    return gulp.src(asset['src'])
+      .pipe(ejs(config))
+      .pipe(rename(asset['dest']))
       .pipe(gulp.dest('./package'));
   });
 
-  htmlTasks.push(taskName);
-});
+  return taskName;
+};
+gulp.task('html', html['assets'].map(generateHtmlTask));
 
-gulp.task('html', htmlTasks);
+function generateJsTask(asset) {
+  var taskName = "js:" + asset['dest'];
 
-gulp.task('js', ['js:lint'], function() {
-  return gulp.src(jsFilesGlob)
-    .pipe(sourcemaps.init())
-    .pipe(concat('app.js'))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('maps'))
-    .pipe(gulp.dest('./package/js'));
-});
+  switch(asset['render']) {
+    case 'concat':
+      gulp.task(taskName, ['js:lint'], function() {
+        return gulp.src(asset['glob'])
+          .pipe(sourcemaps.init())
+          .pipe(concat(asset['dest']))
+          .pipe(uglify())
+          .pipe(sourcemaps.write('maps'))
+          .pipe(gulp.dest('./package/js'));
+      });
+      break;
+    case 'ejs':
+      gulp.task(taskName, ['js:lint'], function() {
+        return gulp.src(asset['src'])
+          .pipe(sourcemaps.init())
+          .pipe(ejs(config))
+          .pipe(uglify())
+          .pipe(sourcemaps.write('maps'))
+          .pipe(gulp.dest('./package/js'));
+      });
+      break;
+    default:
+      throw new gutil.PluginError({ plugin: taskName, message: asset['dest'] + " - missing/invalid 'render' property" });
+  }
+
+  return taskName;
+};
+gulp.task('js', js['assets'].map(generateJsTask));
 
 gulp.task('js:lint', function() {
-  return gulp.src('src/js/**/*.js')
+  return gulp.src(js['src']['glob'])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('css', function() {
-  var sassOptions = {
-    outputStyle: 'compressed'
-  };
+function generateCssTask(asset) {
+  var taskName = "css:" + asset['dest'];
 
-  return gulp.src(sassFilesGlob)
-    .pipe(sourcemaps.init())
-    .pipe(sass(sassOptions).on('error', sass.logError))
-    .pipe(sourcemaps.write('maps'))
-    .pipe(gulp.dest('./package/css'));
-});
+  gulp.task(taskName, function() {
+    var sassOptions = {
+      outputStyle: asset['outputStyle'] || 'compressed'
+    };
+
+    return gulp.src(asset['src'])
+      .pipe(sourcemaps.init())
+      .pipe(sass(sassOptions).on('error', sass.logError))
+      .pipe(sourcemaps.write('maps'))
+      .pipe(gulp.dest('./package/css'));
+  });
+
+  return taskName;
+}
+gulp.task('css', css['assets'].map(generateCssTask));

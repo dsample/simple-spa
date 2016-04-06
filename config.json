@@ -1,1 +1,28 @@
-""
+{
+  "assets": {
+    "html": {
+      "src" : {
+        "glob": "src/**/*.html.ejs"
+      },
+      "assets": [
+        { "render": "ejs", "src": "src/html/index.html.ejs", "dest": "index.html" }
+      ]
+    },
+    "js": {
+      "src": {
+        "glob": "src/**/*.js"
+      },
+      "assets": [
+        { "render": "concat", "glob": "src/js/**/*.js", "dest": "app.js" }
+      ]
+    },
+    "css": {
+      "src": {
+        "glob": "src/**/*.scss"
+      },
+      "assets": [
+        { "render": "sass", "src": "src/css/app.scss", "dest": "app.css" }
+      ]
+    }
+  }
+}
