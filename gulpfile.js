@@ -2,15 +2,6 @@
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var sass = require('gulp-sass');
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var sourcemaps = require('gulp-sourcemaps');
-var karma = require('karma');
-var jshint = require('gulp-jshint');
-var jshintStylish = require('jshint-stylish');
-var ejs = require('gulp-ejs');
-var rename = require('gulp-rename');
 
 var config = require('./config.json');
 var assetConfig = config['assets'];
@@ -37,6 +28,8 @@ gulp.task('watch:html', function() {
 });
 
 gulp.task('test', ['js'], function(done) {
+  var karma = require('karma');
+
   new karma.Server({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
@@ -44,6 +37,9 @@ gulp.task('test', ['js'], function(done) {
 });
 
 function generateHtmlTask(asset) {
+  var ejs = require('gulp-ejs');
+  var rename = require('gulp-rename');
+
   var taskName = "html:" + asset['dest'];
 
   gulp.task(taskName, function() {
@@ -58,11 +54,16 @@ function generateHtmlTask(asset) {
 gulp.task('html', html['assets'].map(generateHtmlTask));
 
 function generateJsTask(asset) {
+  var uglify = require('gulp-uglify');
+  var sourcemaps = require('gulp-sourcemaps');
+
   var taskName = "js:" + asset['dest'];
 
   switch(asset['render']) {
     case 'concat':
       gulp.task(taskName, ['js:lint'], function() {
+        var concat = require('gulp-concat');
+
         return gulp.src(asset['glob'])
           .pipe(sourcemaps.init())
           .pipe(concat(asset['dest']))
@@ -90,12 +91,18 @@ function generateJsTask(asset) {
 gulp.task('js', js['assets'].map(generateJsTask));
 
 gulp.task('js:lint', function() {
+  var jshint = require('gulp-jshint');
+  var jshintStylish = require('jshint-stylish');
+
   return gulp.src(js['src']['glob'])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
 function generateCssTask(asset) {
+  var sass = require('gulp-sass');
+  var sourcemaps = require('gulp-sourcemaps');
+
   var taskName = "css:" + asset['dest'];
 
   gulp.task(taskName, function() {
