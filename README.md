@@ -1,5 +1,6 @@
 # simple-spa
-A simple pre-compiled single page app
+
+The purpose of this project is to provide a way to create a site using templates and partials, in a similar way as views rendered on-the-fly in a Rails or .Net MVC app. Instead of having a server-side application running in order to build the views, this allows the views to be compiled during a CI process, and then served as static files from a simple webserver such as Nginx, or even from a CDN or Amazon S3.
 
 ## Installation
 
@@ -27,6 +28,5 @@ All JS and CSS assets are minified using Uglifier.
 ## Features
 
 * JavaScript & CSS compiling and uglifying
-* JSHint
+* Linting for JavaScript and SASS
 * Karma testing with Jasmine
-
